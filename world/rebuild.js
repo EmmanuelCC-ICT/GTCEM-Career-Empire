@@ -8,6 +8,7 @@
     runSpeed: 285,
     playerDisplay: { width: 96, height: 144 },
     playerOrigin: { x: 0.5, y: 0.9375 },
+    playerFootRadius: 12,
     walkZoom: 0.96,
     runZoom: 0.9,
     approachZoom: 1.06,
@@ -154,6 +155,12 @@
     ["workplace-entry", "market-preview"]
   ];
 
+  const WALKABLE_LINKS = ROUTE_LINKS.map(([from, to]) => ({
+    from,
+    to,
+    halfWidth: (from === "skills-entry" || to === "est-entry") ? 42 : 61
+  }));
+
   const LANDSCAPE = [
     { key: "treeLarge", x: 420, y: 1500, height: 520, collision: { type: "circle", radius: 32 } },
     { key: "treeLarge", x: 940, y: 1280, height: 500, collision: { type: "circle", radius: 32 } },
@@ -189,6 +196,7 @@
       this.player = null;
       this.currentDirection = "front";
       this.walkTimer = 0;
+      this.walkDistance = 0;
       this.routePath = [];
       this.colliders = [];
       this.destinationZones = [];
@@ -242,10 +250,17 @@
     }
 
     drawGround() {
+      const base = this.add.graphics().setDepth(-205);
+      base.fillStyle(0x315f3e, 1);
+      base.fillRect(0, 0, WORLD.width, WORLD.height);
+
       for (let x = 0; x < WORLD.width; x += 256) {
         for (let y = 0; y < WORLD.height; y += 256) {
           const key = (x + y) % 768 === 0 ? "grassFlowers" : (x / 256 + y / 256) % 5 === 0 ? "grassWorn" : "grass";
-          this.add.image(x + 128, y + 128, key).setDepth(-200);
+          this.add.image(x + 128, y + 128, key)
+            .setDisplaySize(258, 258)
+            .setAlpha(0.68)
+            .setDepth(-200);
         }
       }
 
@@ -285,13 +300,6 @@
       routeLayer.lineStyle(74, 0x1c5262, 0.86);
       this.drawPath(routeLayer, ["town-square-centre", "skills-entry", "est-entry"]);
       this.drawPath(routeLayer, ["town-square-centre", "town-hall-entry"]);
-
-      routeLayer.lineStyle(10, 0x67d8ff, 0.2);
-      ROUTE_LINKS.forEach(([a, b]) => {
-        const from = this.routeGraph.get(a);
-        const to = this.routeGraph.get(b);
-        routeLayer.lineBetween(from.x, from.y, to.x, to.y);
-      });
 
       ROUTE_NODES.forEach((node) => {
         this.add.image(node.x, node.y, "plaza").setDisplaySize(118, 118).setAlpha(0.26).setDepth(-70);
@@ -566,22 +574,44 @@
       if (point.x < 80 || point.y < 180 || point.x > WORLD.width - 80 || point.y > WORLD.height - 90) {
         return true;
       }
+      if (!this.isWalkable(point)) return true;
+
+      const footRadius = WORLD.playerFootRadius;
       return this.colliders.some((collider) => {
         if (collider.type === "rect") {
-          return point.x > collider.x - collider.width / 2 &&
-            point.x < collider.x + collider.width / 2 &&
-            point.y > collider.y - collider.height / 2 &&
-            point.y < collider.y + collider.height / 2;
+          return point.x > collider.x - collider.width / 2 - footRadius &&
+            point.x < collider.x + collider.width / 2 + footRadius &&
+            point.y > collider.y - collider.height / 2 - footRadius &&
+            point.y < collider.y + collider.height / 2 + footRadius;
         }
         if (collider.type === "circle") {
-          return Phaser.Math.Distance.Between(point.x, point.y, collider.x, collider.y) < collider.radius + 10;
+          return Phaser.Math.Distance.Between(point.x, point.y, collider.x, collider.y) < collider.radius + footRadius;
         }
         if (collider.type === "ellipse") {
-          const dx = (point.x - collider.x) / collider.rx;
-          const dy = (point.y - collider.y) / collider.ry;
+          const dx = (point.x - collider.x) / (collider.rx + footRadius);
+          const dy = (point.y - collider.y) / (collider.ry + footRadius);
           return dx * dx + dy * dy <= 1;
         }
         return false;
+      });
+    }
+
+    isWalkable(point) {
+      if (Phaser.Math.Distance.Between(point.x, point.y, 1240, 1260) <= 218) return true;
+      if (ROUTE_NODES.some((node) => Phaser.Math.Distance.Between(point.x, point.y, node.x, node.y) <= 76)) return true;
+      if (DESTINATIONS.some((destination) => Phaser.Math.Distance.Between(
+        point.x,
+        point.y,
+        destination.entrance.x,
+        destination.entrance.y
+      ) <= 112)) return true;
+
+      return WALKABLE_LINKS.some((link) => {
+        const from = this.routeGraph.get(link.from);
+        const to = this.routeGraph.get(link.to);
+        const segment = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
+        const nearest = Phaser.Geom.Line.GetNearestPoint(segment, point);
+        return Phaser.Math.Distance.Between(nearest.x, nearest.y, point.x, point.y) <= link.halfWidth;
       });
     }
 
@@ -592,18 +622,16 @@
       if (moving) {
         this.currentDirection = this.directionFromVelocity(velocity);
         this.walkTimer += delta * (running ? 1.7 : 1);
+        this.walkDistance += velocity.length() * delta / 1000;
       } else {
         this.walkTimer = 0;
+        this.walkDistance = 0;
       }
 
       const texture = this.pickPose(moving);
       this.player.setTexture(texture);
-      this.player.setRotation(moving ? Phaser.Math.Clamp(velocity.x / (running ? 1600 : 2200), -0.08, 0.08) : 0);
-      const bob = moving ? Math.sin(this.walkTimer / (running ? 72 : 96)) * (running ? 4.5 : 2.5) : 0;
-      this.player.setScale(
-        WORLD.playerDisplay.width / 256,
-        (WORLD.playerDisplay.height + bob) / 384
-      );
+      this.player.setRotation(0);
+      this.player.setDisplaySize(WORLD.playerDisplay.width, WORLD.playerDisplay.height);
     }
 
     directionFromVelocity(velocity) {
@@ -621,7 +649,7 @@
         return "idleFront";
       }
 
-      const phase = Math.floor(this.walkTimer / 150) % 3;
+      const phase = Math.floor(this.walkDistance / 34) % 3;
       if (this.currentDirection === "back") {
         return phase === 0 ? "idleBack" : phase === 1 ? "walkBackA" : "walkBackB";
       }
@@ -638,7 +666,11 @@
 
       const lookAheadX = Phaser.Math.Clamp(velocity.x * 0.34, -72, 72);
       const lookAheadY = Phaser.Math.Clamp(velocity.y * 0.18, -42, 64);
-      this.cameras.main.setFollowOffset(-lookAheadX, 42 - lookAheadY);
+      const destinationX = nearDestination ? nearDestination.x - this.player.x : 0;
+      const destinationY = nearDestination ? nearDestination.y - this.player.y : 0;
+      const frameX = nearDestination ? Phaser.Math.Clamp(destinationX * 0.38, -118, 118) : lookAheadX;
+      const frameY = nearDestination ? Phaser.Math.Clamp(destinationY * 0.3, -92, 72) : lookAheadY;
+      this.cameras.main.setFollowOffset(-frameX, 42 - frameY);
     }
 
     updateInteractions() {
@@ -647,7 +679,9 @@
         this.currentDestination = destination;
         this.setPanel(destination);
         if (destination) {
-          this.showToast(`${destination.title}: press Enter to enter.`);
+          this.showToast(destination.href
+            ? `${destination.title}: press Enter to enter.`
+            : `${destination.title}: Stage 1 exterior preview.`);
         }
       }
     }
@@ -677,7 +711,7 @@
         type.textContent = "Current area";
         title.textContent = "Arrival Street";
         detail.textContent = "Walk from Home Base to Town Square, then out to Skills Centre or First Workplace.";
-        button.textContent = "Enter location";
+        button.textContent = "Move near an entrance";
         button.disabled = true;
         return;
       }
@@ -685,7 +719,7 @@
       type.textContent = destination.type;
       title.textContent = destination.title;
       detail.textContent = destination.detail;
-      button.textContent = destination.href ? `Enter ${destination.title}` : "Preview only";
+      button.textContent = destination.href ? `Enter ${destination.title}` : "Stage 1 preview - no interior";
       button.disabled = !destination.href;
     }
 
