@@ -21,7 +21,12 @@
     grassFlowers: "terrain/CE-TERRAIN-002-grass-flowers.png",
     grassWorn: "terrain/CE-TERRAIN-003-grass-worn.png",
     plaza: "paths/CE-PATH-001-plaza-stone-base.png",
-    road: "paths/CE-PATH-003-road-straight.png",
+    plazaGlow: "paths/CE-PATH-002-plaza-stone-glow.png",
+    roadStraight: "paths/CE-PATH-003-road-straight.png",
+    roadCorner: "paths/CE-PATH-004-road-corner.png",
+    roadT: "paths/CE-PATH-005-road-t-junction.png",
+    roadCrossing: "paths/CE-PATH-006-road-crossing.png",
+    gardenEdge: "terrain/CE-TERRAIN-004-garden-edge.png",
     water: "water/CE-WATER-001-base-water.png",
     shore: "water/CE-WATER-002-shore-edge.png",
     homeBase: "buildings/CE-BLDG-001-home-base.png",
@@ -55,6 +60,25 @@
     celebrateFront: "avatars/CE-CHAR-B01/runtime/CE-CHAR-B01-celebrate-front-3q.png"
   };
 
+  // Occupied alpha bounds copied from asset-manifest.stage0.json. Display targets
+  // describe the visible object, not the transparent source canvas around it.
+  const ASSET_BOUNDS = {
+    homeBase: { sourceWidth: 1024, sourceHeight: 1024, occupiedY: 208, occupiedWidth: 1020, occupiedHeight: 607 },
+    skillsCentre: { sourceWidth: 1024, sourceHeight: 1024, occupiedY: 196, occupiedWidth: 1020, occupiedHeight: 632 },
+    estPrep: { sourceWidth: 1024, sourceHeight: 1024, occupiedY: 183, occupiedWidth: 1020, occupiedHeight: 657 },
+    townHall: { sourceWidth: 1024, sourceHeight: 1024, occupiedY: 200, occupiedWidth: 982, occupiedHeight: 632 },
+    lamp: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 132, occupiedHeight: 484 },
+    sign: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 335, occupiedHeight: 484 },
+    marker: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 353, occupiedHeight: 483 },
+    bench: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 488, occupiedHeight: 357 },
+    planter: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 474, occupiedHeight: 466 },
+    treeSmall: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 323, occupiedHeight: 484 },
+    treeLarge: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 473, occupiedHeight: 483 },
+    bin: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 412, occupiedHeight: 484 },
+    bikeRack: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 481, occupiedHeight: 372 },
+    banner: { sourceWidth: 512, sourceHeight: 512, occupiedWidth: 456, occupiedHeight: 484 }
+  };
+
   const DESTINATIONS = [
     {
       id: "home-base",
@@ -63,21 +87,21 @@
       detail: "Arrival, identity, goals and your personal career story.",
       href: "../dashboards/student.html?from=world-rebuild",
       asset: "homeBase",
-      x: 610,
-      y: 1640,
-      displayHeight: 292,
-      entrance: { x: 650, y: 1760 },
-      collision: { x: 610, y: 1617, width: 250, height: 96 }
+      x: 600,
+      baseY: 2070,
+      occupiedHeight: 390,
+      entrance: { x: 512, y: 1792 },
+      collision: { x: 600, y: 2032, width: 470, height: 76 }
     },
     {
       id: "town-square",
       title: "Town Square",
       type: "Civic Heart",
       detail: "The shared class space for community progress, votes and chapter events.",
-      x: 1240,
-      y: 1260,
-      displayHeight: 0,
-      entrance: { x: 1240, y: 1260 },
+      x: 1280,
+      y: 1280,
+      occupiedHeight: 0,
+      entrance: { x: 1280, y: 1280 },
       collision: null
     },
     {
@@ -87,11 +111,11 @@
       detail: "Earn capability badges here. Initiative is the first live skill path.",
       href: "../modules/initiative/index.html?from=world-rebuild",
       asset: "skillsCentre",
-      x: 730,
-      y: 940,
-      displayHeight: 300,
-      entrance: { x: 760, y: 1070 },
-      collision: { x: 730, y: 922, width: 252, height: 104 }
+      x: 760,
+      baseY: 650,
+      occupiedHeight: 410,
+      entrance: { x: 768, y: 768 },
+      collision: { x: 760, y: 612, width: 500, height: 76 }
     },
     {
       id: "est-prep",
@@ -100,22 +124,22 @@
       detail: "A smaller academic support stop for Week 9 preparation.",
       href: "../modules/est-prep/index.html?from=world-rebuild",
       asset: "estPrep",
-      x: 410,
-      y: 820,
-      displayHeight: 215,
-      entrance: { x: 430, y: 915 },
-      collision: { x: 410, y: 805, width: 182, height: 82 }
+      x: 310,
+      baseY: 700,
+      occupiedHeight: 250,
+      entrance: { x: 512, y: 768 },
+      collision: { x: 310, y: 670, width: 285, height: 60 }
     },
     {
       id: "first-workplace",
       title: "First Workplace",
       type: "Work and Enterprise Quarter",
       detail: "Placeholder entrance for first job, income and workplace expectations. Dedicated art is still missing.",
-      x: 1815,
-      y: 1040,
-      displayHeight: 0,
-      entrance: { x: 1760, y: 1170 },
-      collision: { x: 1815, y: 1002, width: 300, height: 124 },
+      x: 2180,
+      y: 940,
+      occupiedHeight: 0,
+      entrance: { x: 2048, y: 1024 },
+      collision: { x: 2180, y: 920, width: 330, height: 150 },
       placeholder: true
     },
     {
@@ -125,68 +149,100 @@
       detail: "Community fund, class votes and town upgrade decisions.",
       href: "../dashboards/community.html?from=world-rebuild",
       asset: "townHall",
-      x: 1325,
-      y: 1585,
-      displayHeight: 285,
-      entrance: { x: 1325, y: 1710 },
-      collision: { x: 1325, y: 1560, width: 238, height: 100 }
+      x: 1280,
+      baseY: 2180,
+      occupiedHeight: 400,
+      entrance: { x: 1280, y: 1792 },
+      collision: { x: 1280, y: 2142, width: 470, height: 76 }
     }
   ];
 
   const ROUTE_NODES = [
-    { id: "home-entry", x: 650, y: 1760 },
-    { id: "home-bend", x: 790, y: 1580 },
-    { id: "town-square-centre", x: 1240, y: 1260 },
-    { id: "skills-entry", x: 760, y: 1070 },
-    { id: "est-entry", x: 430, y: 915 },
-    { id: "workplace-entry", x: 1760, y: 1170 },
-    { id: "town-hall-entry", x: 1325, y: 1710 },
-    { id: "market-preview", x: 1765, y: 1540 }
+    { id: "loop-nw", x: 512, y: 768 },
+    { id: "loop-north", x: 1280, y: 768 },
+    { id: "loop-ne", x: 2048, y: 768 },
+    { id: "loop-east", x: 2048, y: 1280 },
+    { id: "loop-se", x: 2048, y: 1792 },
+    { id: "loop-south", x: 1280, y: 1792 },
+    { id: "loop-sw", x: 512, y: 1792 },
+    { id: "loop-west", x: 512, y: 1280 },
+    { id: "town-square-centre", x: 1280, y: 1280 },
+    { id: "skills-entry", x: 768, y: 768 },
+    { id: "est-entry", x: 512, y: 768 },
+    { id: "home-entry", x: 512, y: 1792 },
+    { id: "workplace-entry", x: 2048, y: 1024 },
+    { id: "town-hall-entry", x: 1280, y: 1792 }
   ];
 
   const ROUTE_LINKS = [
-    ["home-entry", "home-bend"],
-    ["home-bend", "town-square-centre"],
-    ["town-square-centre", "skills-entry"],
-    ["skills-entry", "est-entry"],
-    ["town-square-centre", "workplace-entry"],
-    ["town-square-centre", "town-hall-entry"],
-    ["town-hall-entry", "market-preview"],
-    ["workplace-entry", "market-preview"]
+    ["loop-nw", "loop-north"], ["loop-north", "loop-ne"],
+    ["loop-ne", "loop-east"], ["loop-east", "loop-se"],
+    ["loop-se", "loop-south"], ["loop-south", "loop-sw"],
+    ["loop-sw", "loop-west"], ["loop-west", "loop-nw"],
+    ["loop-west", "town-square-centre"], ["town-square-centre", "loop-east"],
+    ["loop-north", "town-square-centre"], ["town-square-centre", "loop-south"],
+    ["skills-entry", "loop-north"], ["est-entry", "loop-nw"],
+    ["workplace-entry", "loop-east"], ["home-entry", "loop-south"],
+    ["town-hall-entry", "loop-south"]
   ];
 
-  const WALKABLE_LINKS = ROUTE_LINKS.map(([from, to]) => ({
-    from,
-    to,
-    halfWidth: (from === "skills-entry" || to === "est-entry") ? 42 : 61
-  }));
-
   const LANDSCAPE = [
-    { key: "treeLarge", x: 420, y: 1500, height: 520, collision: { type: "circle", radius: 32 } },
-    { key: "treeLarge", x: 940, y: 1280, height: 500, collision: { type: "circle", radius: 32 } },
-    { key: "treeSmall", x: 1010, y: 1730, height: 330, collision: { type: "circle", radius: 24 } },
-    { key: "treeSmall", x: 1550, y: 1330, height: 330, collision: { type: "circle", radius: 24 } },
-    { key: "treeLarge", x: 2060, y: 1285, height: 505, collision: { type: "circle", radius: 32 } },
-    { key: "lamp", x: 940, y: 1450, height: 320, collision: { type: "circle", radius: 14 } },
-    { key: "lamp", x: 1515, y: 1185, height: 320, collision: { type: "circle", radius: 14 } },
-    { key: "lamp", x: 1160, y: 1640, height: 320, collision: { type: "circle", radius: 14 } },
-    { key: "bench", x: 1125, y: 1370, height: 70, collision: { type: "rect", width: 95, height: 24 } },
-    { key: "bench", x: 1375, y: 1155, height: 70, collision: { type: "rect", width: 95, height: 24 } },
-    { key: "planter", x: 1010, y: 1195, height: 88, collision: { type: "rect", width: 78, height: 24 } },
-    { key: "planter", x: 1488, y: 1390, height: 88, collision: { type: "rect", width: 78, height: 24 } },
-    { key: "sign", x: 990, y: 1220, height: 178, collision: { type: "circle", radius: 14 } },
-    { key: "banner", x: 1230, y: 1055, height: 285, collision: { type: "circle", radius: 16 } },
-    { key: "bikeRack", x: 630, y: 1100, height: 76, collision: { type: "rect", width: 82, height: 28 } },
-    { key: "bin", x: 1435, y: 1728, height: 76, collision: { type: "circle", radius: 15 } },
-    { key: "marker", x: 650, y: 1760, height: 78, collision: null, interactionOnly: true },
-    { key: "marker", x: 760, y: 1070, height: 78, collision: null, interactionOnly: true },
-    { key: "marker", x: 1760, y: 1170, height: 78, collision: null, interactionOnly: true }
+    { key: "treeLarge", x: 355, y: 1460, occupiedHeight: 520, collision: { type: "circle", radius: 34 } },
+    { key: "treeLarge", x: 2180, y: 1510, occupiedHeight: 500, collision: { type: "circle", radius: 34 } },
+    { key: "treeSmall", x: 930, y: 1030, occupiedHeight: 335, collision: { type: "circle", radius: 24 } },
+    { key: "treeSmall", x: 1630, y: 1510, occupiedHeight: 330, collision: { type: "circle", radius: 24 } },
+    { key: "lamp", x: 895, y: 1160, occupiedHeight: 325, collision: { type: "circle", radius: 16 } },
+    { key: "lamp", x: 1665, y: 1160, occupiedHeight: 325, collision: { type: "circle", radius: 16 } },
+    { key: "lamp", x: 1055, y: 1640, occupiedHeight: 320, collision: { type: "circle", radius: 16 } },
+    { key: "bench", x: 1060, y: 1435, occupiedHeight: 70, collision: { type: "rect", width: 96, height: 24 } },
+    { key: "bench", x: 1500, y: 1090, occupiedHeight: 70, collision: { type: "rect", width: 96, height: 24 } },
+    { key: "planter", x: 1010, y: 1110, occupiedHeight: 88, collision: { type: "rect", width: 78, height: 24 } },
+    { key: "planter", x: 1550, y: 1435, occupiedHeight: 88, collision: { type: "rect", width: 78, height: 24 } },
+    { key: "sign", x: 970, y: 1290, occupiedHeight: 180, collision: { type: "circle", radius: 14 } },
+    { key: "banner", x: 1280, y: 1010, occupiedHeight: 285, collision: { type: "circle", radius: 16 } },
+    { key: "bikeRack", x: 780, y: 650, occupiedHeight: 76, collision: { type: "rect", width: 82, height: 28 } },
+    { key: "bin", x: 1470, y: 1720, occupiedHeight: 76, collision: { type: "circle", radius: 15 } },
+    { key: "marker", x: 512, y: 1792, occupiedHeight: 150, collision: null, interactionOnly: true },
+    { key: "marker", x: 768, y: 768, occupiedHeight: 150, collision: null, interactionOnly: true },
+    { key: "marker", x: 2048, y: 1024, occupiedHeight: 150, collision: null, interactionOnly: true }
   ];
 
   const WATER_BODIES = [
-    { x: 430, y: 1285, rx: 170, ry: 85 },
-    { x: 1595, y: 830, rx: 210, ry: 92 },
-    { x: 1740, y: 1860, rx: 210, ry: 86 }
+    { x: 270, y: 1110, rx: 150, ry: 78 },
+    { x: 2250, y: 1210, rx: 170, ry: 82 }
+  ];
+
+  const ROAD_TILES = [
+    // Main ring: corners, straights, and cross-street junctions align on the
+    // native 256 px tile grid so kerbs and dashed centre lines meet exactly.
+    { key: "roadCorner", x: 512, y: 768, rotation: 180 },
+    { key: "roadStraight", x: 768, y: 768, rotation: 90 },
+    { key: "roadStraight", x: 1024, y: 768, rotation: 90 },
+    { key: "roadT", x: 1280, y: 768, rotation: 0 },
+    { key: "roadStraight", x: 1536, y: 768, rotation: 90 },
+    { key: "roadStraight", x: 1792, y: 768, rotation: 90 },
+    { key: "roadCorner", x: 2048, y: 768, rotation: 270 },
+    { key: "roadStraight", x: 2048, y: 1024, rotation: 0 },
+    { key: "roadT", x: 2048, y: 1280, rotation: 90 },
+    { key: "roadStraight", x: 2048, y: 1536, rotation: 0 },
+    { key: "roadCorner", x: 2048, y: 1792, rotation: 0 },
+    { key: "roadStraight", x: 1792, y: 1792, rotation: 90 },
+    { key: "roadStraight", x: 1536, y: 1792, rotation: 90 },
+    { key: "roadT", x: 1280, y: 1792, rotation: 180 },
+    { key: "roadStraight", x: 1024, y: 1792, rotation: 90 },
+    { key: "roadStraight", x: 768, y: 1792, rotation: 90 },
+    { key: "roadCorner", x: 512, y: 1792, rotation: 90 },
+    { key: "roadStraight", x: 512, y: 1536, rotation: 0 },
+    { key: "roadT", x: 512, y: 1280, rotation: 270 },
+    { key: "roadStraight", x: 512, y: 1024, rotation: 0 },
+    // Two short streets cross in Town Square and terminate at the loop.
+    { key: "roadStraight", x: 768, y: 1280, rotation: 90 },
+    { key: "roadStraight", x: 1024, y: 1280, rotation: 90 },
+    { key: "roadCrossing", x: 1280, y: 1280, rotation: 0 },
+    { key: "roadStraight", x: 1536, y: 1280, rotation: 90 },
+    { key: "roadStraight", x: 1792, y: 1280, rotation: 90 },
+    { key: "roadStraight", x: 1280, y: 1024, rotation: 0 },
+    { key: "roadStraight", x: 1280, y: 1536, rotation: 0 }
   ];
 
   class RebuildScene extends Phaser.Scene {
@@ -269,6 +325,16 @@
       shade.fillEllipse(1200, 1260, 1180, 840);
       shade.fillStyle(0x1e6f44, 0.08);
       shade.fillEllipse(720, 1340, 930, 730);
+
+      [
+        { x: 420, y: 900, rotation: 0 }, { x: 2140, y: 920, rotation: 90 },
+        { x: 410, y: 1650, rotation: 270 }, { x: 2140, y: 1640, rotation: 180 }
+      ].forEach((edge) => {
+        this.add.image(edge.x, edge.y, "gardenEdge")
+          .setRotation(Phaser.Math.DegToRad(edge.rotation))
+          .setAlpha(0.52)
+          .setDepth(-145);
+      });
     }
 
     drawWater() {
@@ -283,67 +349,24 @@
     }
 
     drawRoutes() {
-      const routeLayer = this.add.graphics().setDepth(-90);
-      routeLayer.lineStyle(112, 0x143b4d, 0.78);
-      routeLayer.beginPath();
-      this.drawSmoothLine(routeLayer, [
-        { x: 650, y: 1760 },
-        { x: 790, y: 1580 },
-        { x: 1240, y: 1260 },
-        { x: 1760, y: 1170 },
-        { x: 1765, y: 1540 },
-        { x: 1325, y: 1710 },
-        { x: 650, y: 1760 }
-      ]);
-      routeLayer.strokePath();
+      // A 3 x 3 stone civic plaza sits below the road crossing. The centre glow
+      // marks Town Square without drawing synthetic road or debug geometry.
+      for (let x = 1024; x <= 1536; x += 256) {
+        for (let y = 1024; y <= 1536; y += 256) {
+          const key = x === 1280 && y === 1280 ? "plazaGlow" : "plaza";
+          this.add.image(x, y, key).setDepth(-92).setAlpha(key === "plazaGlow" ? 0.92 : 0.78);
+        }
+      }
 
-      routeLayer.lineStyle(74, 0x1c5262, 0.86);
-      this.drawPath(routeLayer, ["town-square-centre", "skills-entry", "est-entry"]);
-      this.drawPath(routeLayer, ["town-square-centre", "town-hall-entry"]);
-
-      ROUTE_NODES.forEach((node) => {
-        this.add.image(node.x, node.y, "plaza").setDisplaySize(118, 118).setAlpha(0.26).setDepth(-70);
+      ROAD_TILES.forEach((tile) => {
+        this.add.image(tile.x, tile.y, tile.key)
+          .setRotation(Phaser.Math.DegToRad(tile.rotation))
+          .setDepth(-80);
       });
     }
 
-    drawSmoothLine(graphics, points) {
-      if (!points.length) return;
-      graphics.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length - 1; i += 1) {
-        const from = points[i - 1];
-        const control = points[i];
-        const to = points[i + 1];
-        for (let step = 1; step <= 10; step += 1) {
-          const t = step / 10;
-          const oneMinusT = 1 - t;
-          const x = oneMinusT * oneMinusT * from.x + 2 * oneMinusT * t * control.x + t * t * to.x;
-          const y = oneMinusT * oneMinusT * from.y + 2 * oneMinusT * t * control.y + t * t * to.y;
-          graphics.lineTo(x, y);
-        }
-      }
-      const last = points[points.length - 1];
-      graphics.lineTo(last.x, last.y);
-    }
-
-    drawPath(graphics, ids) {
-      for (let i = 0; i < ids.length - 1; i += 1) {
-        const from = this.routeGraph.get(ids[i]);
-        const to = this.routeGraph.get(ids[i + 1]);
-        graphics.lineBetween(from.x, from.y, to.x, to.y);
-      }
-    }
-
     drawTownSquare() {
-      const square = this.add.graphics().setDepth(-60);
-      square.fillStyle(0x728275, 0.3);
-      square.fillEllipse(1240, 1260, 430, 285);
-      square.lineStyle(22, 0xbed0b9, 0.24);
-      square.strokeEllipse(1240, 1260, 430, 285);
-      square.lineStyle(3, 0x67d8ff, 0.22);
-      square.strokeEllipse(1240, 1260, 300, 188);
-      square.fillStyle(0x67d8ff, 0.14);
-      square.fillCircle(1240, 1260, 42);
-      this.add.text(1240, 1120, "TOWN SQUARE", {
+      this.add.text(1280, 1160, "TOWN SQUARE", {
         fontFamily: "Outfit, sans-serif",
         fontSize: "24px",
         fontStyle: "800",
@@ -356,10 +379,14 @@
     drawDestinations() {
       DESTINATIONS.forEach((destination) => {
         if (destination.asset) {
-          const image = this.add.image(destination.x, destination.y, destination.asset)
-            .setDisplaySize(destination.displayHeight, destination.displayHeight)
-            .setOrigin(0.5, 0.72);
-          image.setDepth(destination.y);
+          const bounds = ASSET_BOUNDS[destination.asset];
+          const scale = destination.occupiedHeight / bounds.occupiedHeight;
+          const occupiedBottomFromCentre = bounds.occupiedY + bounds.occupiedHeight - bounds.sourceHeight / 2;
+          const imageY = destination.baseY - occupiedBottomFromCentre * scale;
+          const image = this.add.image(destination.x, imageY, destination.asset)
+            .setDisplaySize(bounds.sourceWidth * scale, bounds.sourceHeight * scale)
+            .setOrigin(0.5, 0.5);
+          image.setDepth(destination.baseY);
         }
 
         if (destination.placeholder) {
@@ -377,8 +404,10 @@
         this.destinationZones.push(zone);
 
         if (destination.id !== "town-square") {
+          const markerBounds = ASSET_BOUNDS.marker;
+          const markerScale = 150 / markerBounds.occupiedHeight;
           this.add.image(destination.entrance.x, destination.entrance.y, "marker")
-            .setDisplaySize(54, 54)
+            .setDisplaySize(markerBounds.sourceWidth * markerScale, markerBounds.sourceHeight * markerScale)
             .setAlpha(0.72)
             .setDepth(destination.entrance.y - 20);
         }
@@ -420,8 +449,10 @@
 
     drawLandscape() {
       LANDSCAPE.forEach((item) => {
+        const bounds = ASSET_BOUNDS[item.key];
+        const scale = item.occupiedHeight / bounds.occupiedHeight;
         const sprite = this.add.image(item.x, item.y, item.key)
-          .setDisplaySize(item.height, item.height)
+          .setDisplaySize(bounds.sourceWidth * scale, bounds.sourceHeight * scale)
           .setOrigin(0.5, item.key.includes("tree") || item.key === "lamp" ? 0.98 : 0.78)
           .setDepth(item.y + (item.key.includes("tree") ? 8 : 0));
 
@@ -440,7 +471,7 @@
     }
 
     createPlayer() {
-      this.player = this.physics.add.sprite(650, 1855, "idleBack")
+      this.player = this.physics.add.sprite(512, 1660, "idleBack")
         .setDisplaySize(WORLD.playerDisplay.width, WORLD.playerDisplay.height)
         .setOrigin(WORLD.playerOrigin.x, WORLD.playerOrigin.y)
         .setCollideWorldBounds(true)
@@ -597,22 +628,9 @@
     }
 
     isWalkable(point) {
-      if (Phaser.Math.Distance.Between(point.x, point.y, 1240, 1260) <= 218) return true;
-      if (ROUTE_NODES.some((node) => Phaser.Math.Distance.Between(point.x, point.y, node.x, node.y) <= 76)) return true;
-      if (DESTINATIONS.some((destination) => Phaser.Math.Distance.Between(
-        point.x,
-        point.y,
-        destination.entrance.x,
-        destination.entrance.y
-      ) <= 112)) return true;
-
-      return WALKABLE_LINKS.some((link) => {
-        const from = this.routeGraph.get(link.from);
-        const to = this.routeGraph.get(link.to);
-        const segment = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
-        const nearest = Phaser.Geom.Line.GetNearestPoint(segment, point);
-        return Phaser.Math.Distance.Between(nearest.x, nearest.y, point.x, point.y) <= link.halfWidth;
-      });
+      // Roads communicate the preferred route, but Stage 1 grass remains
+      // exploratory space. Only visible bases and the world boundary block feet.
+      return point.x >= 80 && point.y >= 180 && point.x <= WORLD.width - 80 && point.y <= WORLD.height - 90;
     }
 
     updatePose(velocity, running, time, delta) {
